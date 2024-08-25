@@ -1,22 +1,32 @@
 from pathlib import Path
+import environ  # <-- Updated!
+
+env = environ.Env(  # <-- Updated!
+    # set casting, default value
+    DEBUG=(bool, False),
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Take environment variables from .env file
+environ.Env.read_env(BASE_DIR / '.env') 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-0peo@#x9jur3!h$ryje!$879xww8y1y66jx!%*#ymhg&jkozs2"
+SECRET_KEY = env('SECRET_KEY') 
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'djangodef.fly.dev'] 
+
+CSRF_TRUSTED_ORIGINS = ['https://*.fly.dev'] 
 
 
 # Application definition
@@ -80,14 +90,8 @@ TEMPLATES = [
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'djangodefdb',
-        'USER': 'djangodefuser',
-        'PASSWORD': 'nonya321',
-        'HOST': '127.0.0.1',  # Or 'localhost'
-        'PORT': '5432',
-    }
+    # read os.environ['DATABASE_URL']
+    'default': env.db()  # <-- Updated!
 }
 
 # For Docker/PostgreSQL usage uncomment this and comment the DATABASES config above
@@ -142,6 +146,8 @@ LOCALE_PATHS = [BASE_DIR / 'locale']
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = "/static/"
